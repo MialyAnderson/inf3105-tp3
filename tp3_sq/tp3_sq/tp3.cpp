@@ -11,7 +11,8 @@
 using namespace std;
 
 void tp3(Carte& carte){
-
+	carte.afficher_sommets();
+	carte.primJarnik();
 }
 
 int main(int argc, const char** argv)

@@ -1,7 +1,7 @@
 /*  INF3105 - Structures de données et algorithmes
  *  UQAM / Département d'informatique / TP3
  *
- *  Vos noms + codes permanents :
+ *  Vos noms + codes permanents : Rakotondradano Mialy Anderson RAKM80300506
  */
 
 #include <cstdio>
@@ -12,7 +12,9 @@
 #include <algorithm>
 #include <string>
 #include <iostream>
-#include "carte.h"
+#include <limits>
+#include "carte.h"		
+#include <utility>
 
 using namespace std;
 
@@ -77,40 +79,73 @@ void Carte::afficher_arretes () {
 	}
 }
 
-istream& operator >> (istream& is, Carte& carte)
-{
+void Carte::primJarnik() {
+	int sommePoids =0;
+	int nbSommets = sommets.size();
+        vector<int> minCout(nbSommets, numeric_limits<int>::max());
+        vector<bool> inclusMST(nbSommets, false);
+        minCout[0] = 0; 
+        for (int count = 0; count < nbSommets; ++count) {
+            int minIndex = -1; 
+            int minValue = numeric_limits<int>::max();
+            for (int i = 0; i < nbSommets; ++i) {
+                if (!inclusMST[i] && minCout[i] < minValue) {
+                    minValue = minCout[i];
+                    minIndex = i;
+                }
+            }
+            inclusMST[minIndex] = true;
+            for (auto &voisin : sommets[minIndex].arretesSortantes) {
+                int sommetVoisin = voisin.first;
+                int poids = voisin.second.poids;
+                if (!inclusMST[sommetVoisin] && poids < minCout[sommetVoisin]) {
+                    minCout[sommetVoisin] = poids;
+                    cout << sommets[minIndex].s << " - " << sommets[sommetVoisin].s << " : " << poids << endl;
+                    sommePoids += poids;
+                }
+            }
+             
+        }
+        cout << "---" << endl;
+        cout << sommePoids << endl;
+}
 
-    
+
+
+istream& operator >> (istream& is, Carte& carte) {
+    string line, rue, deuxPoints, depart, arrive;
+    int poids;
+    bool apresTiret = false;
+
+    while (getline(is, line)) {
+        if (line.empty()) continue;  
+
+        stringstream ss(line);
+        if (!apresTiret) {
+            if (line == "---") {
+                apresTiret = true;
+                carte.inserer_indices();
+                continue;
+            }
+            ss >> line;
+            carte.ajouter_sommets(line);
+        } else {
+            ss >> rue;
+            if (ss.fail()) break; 
+
+            ss >> deuxPoints >> depart >> arrive >> poids;
+            if (ss.fail()) {
+                cerr << "Erreur de lecture des détails de l'arête." << endl;
+                continue;  
+            }
+
+            carte.ajouter_arretes(depart, arrive, poids, rue);
+        }
+    }
+
     return is;
 }
 
-int main () {
-   Carte carte;
-   carte.ajouter_sommets ("a");
-   carte.ajouter_sommets ("b");
-   carte.ajouter_sommets ("c");
-   carte.ajouter_sommets ("d");
-   carte.ajouter_sommets ("e");
-   carte.ajouter_sommets ("f");
-   carte.ajouter_sommets ("g");
-   carte.ajouter_sommets ("h");
-   carte.ajouter_sommets ("i");
-   carte.inserer_indices();
-   carte.ajouter_arretes ("a", "b", 4, "rue 0");
-   carte.ajouter_arretes ("a", "h", 8, "rue 1");
-   carte.ajouter_arretes ("b", "h", 11, "rue 2");
-   carte.ajouter_arretes ("b", "c", 8, "rue 3");
-   carte.ajouter_arretes ("c", "i", 2, "rue 4");
-   carte.ajouter_arretes ("c", "f", 4, "rue 5");
-   carte.ajouter_arretes ("c", "d", 7, "rue 6");
-   carte.ajouter_arretes ("d", "f", 14, "rue 7");
-   carte.ajouter_arretes ("d", "e", 9, "rue 8");
-   carte.ajouter_arretes ("e", "f", 10, "rue 9");
-   carte.ajouter_arretes ("f", "g", 2, "rue 10");
-   carte.ajouter_arretes ("g", "i", 6, "rue 11");
-   carte.ajouter_arretes ("g", "h", 1, "rue 12");
-   carte.ajouter_arretes ("h", "i", 7, "rue 13");
-   carte.afficher_arretes();
-   
-}
+
+
 

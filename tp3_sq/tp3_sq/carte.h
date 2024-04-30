@@ -11,6 +11,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -26,24 +27,32 @@ class Carte{
      void afficher_indices ();
      void ajouter_arretes (string depart, string arrive, int poids, string rue);
      void afficher_arretes ();
+     void primJarnik();
      
-  private:
-  	struct Valeur {
-     	public:
+     
+	 struct Valeur {
      		Valeur() : poids(0), rue("") {}
      		Valeur (const int &poids_, const string &rue_) : poids(poids_), rue(rue_) {}
      		int poids;
      		string rue;  
-     };
-  	struct Sommet {
-        public:
+    };   
+    
+    struct Sommet {
         	Sommet(const string& s_): s(s_){}
         	string s;
         	map<int, Valeur> arretesSortantes;
+        	Sommet& operator = (const Sommet &autre) {
+        		if (this != &autre) {
+        			s = autre.s;
+        			arretesSortantes = autre.arretesSortantes;
+        		}
+        		return *this;
+        	}
      };
+  
+  private:
      map<string, int> indices;
      vector<Sommet> sommets;
-    
   friend istream& operator >> (istream& is, Carte& carte);
 };
 
